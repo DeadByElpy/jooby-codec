@@ -700,6 +700,17 @@ export interface IEnergyPeriod {
     energy?: TUint16
 }
 
+/** active A+ energy by tariffs T1-T4 */
+export interface IEnergies extends Array<TInt32> {}
+
+export interface IPackedEnergies {
+    energyType?: TUint8,
+    T1?: TUint32,
+    T2?: TUint32,
+    T3?: TUint32,
+    T4?: TUint32
+}
+
 export const defaultFrameHeader: IFrameHeader = {
     type: DATA_REQUEST,
     destination: 0xffff,
@@ -804,6 +815,13 @@ const relaySet5Mask = {
 const define1Mask = {
     BLOCK_KEY_OPTOPORT: 0x02,
     MAGNET_SCREEN_CONST: 0x20
+};
+
+const tariffsMask = {
+    T1: 0x10,
+    T2: 0x20,
+    T3: 0x40,
+    T4: 0x80
 };
 
 
@@ -1264,6 +1282,65 @@ class CommandBinaryBuffer extends BinaryBuffer {
 
     setEnergyPeriods ( periods: Array<IEnergyPeriod> ) {
         periods.forEach(period => this.setEnergyPeriod(period));
+    }
+
+    getEnergies (): IEnergies {
+        return Array.from({length: 4}, () => this.getUint32());
+    }
+
+    setEnergies ( energies: IEnergies ) {
+        energies.forEach(value => this.setUint32(value));
+    }
+
+    getPackedEnergies ( withEnergyType: boolean ): IPackedEnergies {
+        const result = {} as IPackedEnergies;
+
+        if ( withEnergyType ) {
+            const byte = this.getUint8();
+            const tariffMap = bitSet.toObject(tariffsMask, byte);
+            result.energyType = bitSet.extractBits(byte, 4, 1);
+
+            Object.keys(tariffMap).forEach(tariff => {
+                if ( tariffMap[tariff] ) {
+                    result[tariff as keyof IPackedEnergies] = this.getUint32();
+                }
+            });
+        } else {
+            result.T1 = this.getUint32();
+            result.T2 = this.getUint32();
+            result.T3 = this.getUint32();
+            result.T4 = this.getUint32();
+        }
+
+        return result;
+    }
+
+    setPackedEnergies ( data: IPackedEnergies ) {
+        if ( data.energyType ) {
+            const tariffMap = {
+                T1: !!data.T1,
+                T2: !!data.T2,
+                T3: !!data.T3,
+                T4: !!data.T4
+            };
+
+            const byte = bitSet.fromObject(tariffsMask, tariffMap);
+
+            bitSet.fillBits(byte, 4, 1, data.energyType);
+
+            Object.keys(tariffMap).forEach(tariff => {
+                if ( tariffMap[tariff as keyof typeof tariffMap] ) {
+                    this.setUint32(data[tariff as keyof IPackedEnergies] as number);
+                }
+            });
+        } else if ( data.T1 && data.T2 && data.T3 && data.T4 ) {
+            this.setUint32(data.T1);
+            this.setUint32(data.T1);
+            this.setUint32(data.T1);
+            this.setUint32(data.T1);
+        } else {
+            throw Error('bad parameters structure, cannot convert to bytes');
+        }
     }
 }
 

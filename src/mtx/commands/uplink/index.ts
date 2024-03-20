@@ -8,12 +8,16 @@ export {default as ActivateRatePlanResponse} from './ActivateRatePlanResponse.js
 export {default as ErrorResponse} from './ErrorResponse.js';
 export {default as GetBuildVersionResponse} from './GetBuildVersionResponse.js';
 export {default as GetCorrectTimeResponse} from './GetCorrectTimeResponse.js';
+export {default as GetCurrentValuesResponse} from './GetCurrentValuesResponse.js';
 export {default as GetDateTimeResponse} from './GetDateTimeResponse.js';
 export {default as GetDayProfileResponse} from './GetDayProfileResponse.js';
 export {default as GetDeviceIdResponse} from './GetDeviceIdResponse.js';
 export {default as GetDeviceTypeResponse} from './GetDeviceTypeResponse.js';
 export {default as GetDisplayParamResponse} from './GetDisplayParamResponse.js';
+export {default as GetEnergyCurrentResponse} from './GetEnergyCurrentResponse.js';
 export {default as GetEnergyDayPreviousResponse} from './GetEnergyDayPreviousResponse.js';
+export {default as GetEnergyDayResponse} from './GetEnergyDayResponse.js';
+export {default as GetExtendedCurrentValuesResponse} from './GetExtendedCurrentValuesResponse.js';
 export {default as GetHalfHoursResponse} from './GetHalfHoursResponse.js';
 export {default as GetOpParamsResponse} from './GetOpParamsResponse.js';
 export {default as GetRatePlanInfoResponse} from './GetRatePlanInfoResponse.js';

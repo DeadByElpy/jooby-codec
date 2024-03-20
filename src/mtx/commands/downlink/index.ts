@@ -7,12 +7,16 @@
 export {default as ActivateRatePlan} from './ActivateRatePlan.js';
 export {default as GetBuildVersion} from './GetBuildVersion.js';
 export {default as GetCorrectTime} from './GetCorrectTime.js';
+export {default as GetCurrentValues} from './GetCurrentValues.js';
 export {default as GetDateTime} from './GetDateTime.js';
 export {default as GetDayProfile} from './GetDayProfile.js';
 export {default as GetDeviceId} from './GetDeviceId.js';
 export {default as GetDeviceType} from './GetDeviceType.js';
 export {default as GetDisplayParam} from './GetDisplayParam.js';
+export {default as GetEnergyCurrent} from './GetEnergyCurrent.js';
 export {default as GetEnergyDayPrevious} from './GetEnergyDayPrevious.js';
+export {default as GetEnergyDay} from './GetEnergyDay.js';
+export {default as GetExtendedCurrentValues} from './GetExtendedCurrentValues.js';
 export {default as GetHalfHours} from './GetHalfHours.js';
 export {default as GetOpParams} from './GetOpParams.js';
 export {default as GetRatePlanInfo} from './GetRatePlanInfo.js';
