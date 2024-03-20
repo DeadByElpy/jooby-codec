@@ -34,7 +34,7 @@ const examples: TCommandExampleList = [
 
 
 /**
- * Uplink command to get active energy for a previous day by 4 tariffs (T1-T4).
+ * Uplink command to get active A+ energy by date.
  *
  * The corresponding downlink command: `GetEnergyDay`.
  *

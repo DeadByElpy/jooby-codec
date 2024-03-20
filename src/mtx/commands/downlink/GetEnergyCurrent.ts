@@ -1,4 +1,5 @@
 import Command, {TCommandExampleList} from '../../Command.js';
+import CommandBinaryBuffer, {TEnergyType} from '../../CommandBinaryBuffer.js';
 import {DOWNLINK} from '../../../constants/directions.js';
 import {READ_ONLY} from '../../constants/accessLevels.js';
 
@@ -6,13 +7,23 @@ import {READ_ONLY} from '../../constants/accessLevels.js';
 import GetEnergyCurrentResponse from '../uplink/GetEnergyCurrentResponse.js';
 
 
+interface IGetEnergyCurrentParameters {
+    energyType?: TEnergyType
+}
+
+
 const COMMAND_ID = 0x0f;
-const COMMAND_SIZE = 0;
+const MIN_COMMAND_SIZE = 0;
+const MAX_COMMAND_SIZE = 1;
 
 const examples: TCommandExampleList = [
     {
         name: 'simple request',
         hex: {header: '0f 00', body: ''}
+    },
+    {
+        name: 'get A+ energy',
+        hex: {header: '0f 01', body: '01'}
     }
 ];
 
@@ -36,10 +47,10 @@ const examples: TCommandExampleList = [
  * [Command format documentation](https://github.com/jooby-dev/jooby-docs/blob/main/docs/mtx/commands/GetEnergyCurrent.md#request)
  */
 class GetEnergyCurrent extends Command {
-    constructor () {
+    constructor ( public parameters: IGetEnergyCurrentParameters ) {
         super();
 
-        this.size = COMMAND_SIZE;
+        this.size = parameters.energyType ? MAX_COMMAND_SIZE : MIN_COMMAND_SIZE;
     }
 
 
@@ -53,17 +64,30 @@ class GetEnergyCurrent extends Command {
 
     static readonly accessLevel = READ_ONLY;
 
-    static readonly maxSize = COMMAND_SIZE;
+    static readonly maxSize = MAX_COMMAND_SIZE;
 
 
     // data - only body (without header)
-    static fromBytes ( ) {
-        return new GetEnergyCurrent();
+    static fromBytes ( data: Uint8Array ) {
+        let energyType;
+
+        if ( data.byteLength === MAX_COMMAND_SIZE ) {
+            energyType = data[0] as TEnergyType;
+        }
+
+        return new GetEnergyCurrent({energyType});
     }
 
     // returns full message - header with body
     toBytes (): Uint8Array {
-        return new Uint8Array([COMMAND_ID, this.size]);
+        const bytes = [COMMAND_ID, this.size];
+        const {energyType} = this.parameters;
+
+        if ( energyType ) {
+            bytes.push(energyType);
+        }
+
+        return new Uint8Array(bytes);
     }
 }
 

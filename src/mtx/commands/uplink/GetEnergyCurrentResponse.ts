@@ -24,7 +24,7 @@ const examples: TCommandExampleList = [
 
 
 /**
- * Uplink command to get active energy for a previous day by 4 tariffs (T1-T4).
+ * Uplink command to get current energy A+ by default or selected energy type for 4 tariffs (T1-T4).
  *
  * The corresponding downlink command: `GetEnergyCurrent`.
  *
@@ -32,7 +32,7 @@ const examples: TCommandExampleList = [
  * ```js
  * import GetEnergyCurrentResponse from 'jooby-codec/obis-observer/commands/uplink/GetEnergyCurrentResponse.js';
  *
- * const commandBody = new Uint8Array([0x18, 0x03, 0x16, 0x02, 0x66, 0xf2, 0xae, 0x00, 0x32, 0xe0, 0x64, 0x00, 0x00, 0x09, 0x1d, 0x00, 0x20, 0xbd, 0x57]);
+ * const commandBody = new Uint8Array([0x02, 0x66, 0xf2, 0xae, 0x00, 0x32, 0xe0, 0x64, 0x00, 0x00, 0x09, 0x1d, 0x00, 0x20, 0xbd, 0x57]);
  * const command = GetEnergyCurrentResponse.fromBytes(commandBody);
  *
  * console.log(command.parameters);

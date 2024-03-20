@@ -18,7 +18,7 @@ const examples: TCommandExampleList = [
 
 
 /**
- * Downlink command to get active energy for a previous day by 4 tariffs (T1-T4).
+ * Downlink command to get extended current values like temperature and frequency.
  *
  * The corresponding uplink command: {@link GetExtendedCurrentValuesResponse}.
  *

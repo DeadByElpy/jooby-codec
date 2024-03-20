@@ -16,6 +16,8 @@ import * as screenIds from './constants/screenIds.js';
 /* eslint-enable */
 
 export const frameHeaderSize = 5;
+export const A_PLUS = 1;
+export const A_MINUS = 2;
 
 export interface IFrameHeader {
     /**
@@ -701,15 +703,18 @@ export interface IEnergyPeriod {
 }
 
 /** active A+ energy by tariffs T1-T4 */
-export interface IEnergies extends Array<TInt32> {}
+export interface IEnergies extends Array<TInt32 | undefined> {}
 
-export interface IPackedEnergies {
-    energyType?: TUint8,
-    T1?: TUint32,
-    T2?: TUint32,
-    T3?: TUint32,
-    T4?: TUint32
+export interface IPackedEnergiesWithType {
+    energyType: TEnergyType,
+    energies: IEnergies
 }
+
+/** `1` - `A+`, `2` - `A-` */
+export type TEnergyType = typeof A_PLUS | typeof A_MINUS;
+
+export type TEnergyTariffs = 'A+T1' | 'A+T2' | 'A+T3' | 'A+T4' | 'A-T1' | 'A-T2' | 'A-T3' | 'A-T4';
+
 
 export const defaultFrameHeader: IFrameHeader = {
     type: DATA_REQUEST,
@@ -721,6 +726,7 @@ export const TARIFF_PLAN_SIZE = 11;
 export const OPERATOR_PARAMETERS_SIZE = 74;
 export const SEASON_PROFILE_DAYS_NUMBER = 7;
 export const SEASON_PROFILE_SIZE = 2 + SEASON_PROFILE_DAYS_NUMBER;
+export const TARIFF_NUMBER = 4;
 
 
 const baseDisplaySetMask = {
@@ -817,11 +823,11 @@ const define1Mask = {
     MAGNET_SCREEN_CONST: 0x20
 };
 
-const tariffsMask = {
-    T1: 0x10,
-    T2: 0x20,
-    T3: 0x40,
-    T4: 0x80
+const energyTariffMask = {
+    T1: 2 ** 1,
+    T2: 2 ** 2,
+    T3: 2 ** 3,
+    T4: 2 ** 4
 };
 
 
@@ -1285,62 +1291,68 @@ class CommandBinaryBuffer extends BinaryBuffer {
     }
 
     getEnergies (): IEnergies {
-        return Array.from({length: 4}, () => this.getUint32());
+        return Array.from({length: TARIFF_NUMBER}, () => this.getUint32());
     }
 
     setEnergies ( energies: IEnergies ) {
-        energies.forEach(value => this.setUint32(value));
+        energies.forEach(value => this.setUint32(value as TInt32));
     }
 
-    getPackedEnergies ( withEnergyType: boolean ): IPackedEnergies {
-        const result = {} as IPackedEnergies;
+    // eslint-disable-next-line class-methods-use-this
+    private getPackedEnergyType ( byte: number ): TEnergyType {
+        const isAPlus = !!bitSet.extractBits(byte, TARIFF_NUMBER, 1);
 
-        if ( withEnergyType ) {
-            const byte = this.getUint8();
-            const tariffMap = bitSet.toObject(tariffsMask, byte);
-            result.energyType = bitSet.extractBits(byte, 4, 1);
-
-            Object.keys(tariffMap).forEach(tariff => {
-                if ( tariffMap[tariff] ) {
-                    result[tariff as keyof IPackedEnergies] = this.getUint32();
-                }
-            });
-        } else {
-            result.T1 = this.getUint32();
-            result.T2 = this.getUint32();
-            result.T3 = this.getUint32();
-            result.T4 = this.getUint32();
+        if ( isAPlus ) {
+            return A_PLUS;
         }
 
-        return result;
+        return A_MINUS;
     }
 
-    setPackedEnergies ( data: IPackedEnergies ) {
-        if ( data.energyType ) {
-            const tariffMap = {
-                T1: !!data.T1,
-                T2: !!data.T2,
-                T3: !!data.T3,
-                T4: !!data.T4
-            };
+    private getPackedEnergies ( energyType: TEnergyType, tariffMapByte: number ): IEnergies {
+        let byte = tariffMapByte;
+        const energies = Array.from({length: TARIFF_NUMBER}) as IEnergies;
 
-            const byte = bitSet.fromObject(tariffsMask, tariffMap);
-
-            bitSet.fillBits(byte, 4, 1, data.energyType);
-
-            Object.keys(tariffMap).forEach(tariff => {
-                if ( tariffMap[tariff as keyof typeof tariffMap] ) {
-                    this.setUint32(data[tariff as keyof IPackedEnergies] as number);
-                }
-            });
-        } else if ( data.T1 && data.T2 && data.T3 && data.T4 ) {
-            this.setUint32(data.T1);
-            this.setUint32(data.T1);
-            this.setUint32(data.T1);
-            this.setUint32(data.T1);
-        } else {
-            throw Error('bad parameters structure, cannot convert to bytes');
+        if ( energyType === A_MINUS ) {
+            byte >>= TARIFF_NUMBER;
         }
+
+        const map = bitSet.toObject(energyTariffMask, byte);
+
+        Object.keys(map).forEach((isTariffExists, index) => {
+            if ( isTariffExists ) {
+                energies[index] = this.getUint32();
+            } else {
+                energies[index] = undefined;
+            }
+        });
+
+        return energies;
+    }
+
+    getPackedEnergyWithType (): IPackedEnergiesWithType {
+        const byte = this.getUint8();
+        const energyType = this.getPackedEnergyType(byte);
+        const energies = this.getPackedEnergies(energyType, byte);
+
+        return {
+            energyType,
+            energies
+        };
+    }
+
+    private setPackedEnergyType ( energyType: TEnergyType, energies: IEnergies ) {
+        const map = {};
+
+        energies.forEach((energy, index) => {
+            map[`T${index + 1}`] = !!energy;
+        });
+
+        const energyTypeMapByte = bitSet.fillBits(byte, TARIFF_NUMBER, 1);
+    }
+
+    setPackedEnergyWithType ( {energyType, energies}: IPackedEnergiesWithType ) {
+        this.setPackedEnergyType(energyType, energies);
     }
 }
 
