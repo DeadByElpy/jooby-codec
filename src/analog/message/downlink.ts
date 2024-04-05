@@ -43,6 +43,8 @@ export const toMessage = wrappers.getToMessage(toBytesMap);
 // fill maps
 // iteration should not be used
 toBytesMap[commands.correctTime2000.id] = commands.correctTime2000.toBytes;
+toBytesMap[commands.getCurrent.id] = commands.getCurrent.toBytes;
+toBytesMap[commands.getCurrentMc.id] = commands.getCurrentMc.toBytes;
 toBytesMap[commands.getArchiveEvents.id] = commands.getArchiveEvents.toBytes;
 toBytesMap[commands.getLmicInfo.id] = commands.getLmicInfo.toBytes;
 toBytesMap[commands.getStatus.id] = commands.getStatus.toBytes;
@@ -51,6 +53,8 @@ toBytesMap[commands.setTime2000.id] = commands.setTime2000.toBytes;
 
 // because of webpack/rollup processing!
 fromBytesMap[commands.correctTime2000.id] = commands.correctTime2000.fromBytes;
+fromBytesMap[commands.getCurrent.id] = commands.getCurrent.toBytes;
+fromBytesMap[commands.getCurrentMc.id] = commands.getCurrentMc.toBytes;
 fromBytesMap[commands.getArchiveEvents.id] = commands.getArchiveEvents.fromBytes;
 fromBytesMap[commands.getLmicInfo.id] = commands.getLmicInfo.fromBytes;
 fromBytesMap[commands.getStatus.id] = commands.getStatus.fromBytes;
@@ -58,6 +62,8 @@ fromBytesMap[commands.getTime2000.id] = commands.getTime2000.fromBytes;
 fromBytesMap[commands.setTime2000.id] = commands.setTime2000.fromBytes;
 
 nameMap[commands.correctTime2000.id] = commands.correctTime2000.name;
+nameMap[commands.getCurrent.id] = commands.getCurrent.name;
+nameMap[commands.getCurrentMc.id] = commands.getCurrentMc.name;
 nameMap[commands.getArchiveEvents.id] = commands.getArchiveEvents.name;
 nameMap[commands.getLmicInfo.id] = commands.getLmicInfo.name;
 nameMap[commands.getStatus.id] = commands.getStatus.name;

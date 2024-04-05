@@ -5,8 +5,13 @@
  */
 
 export * as correctTime2000 from './correctTime2000.js';
+export * as currentMc from './currentMc.js';
+export * as dayMc from './dayMc.js';
+export * as exAbsDayMc from './exAbsDayMc.js';
+export * as exAbsHourMc from './exAbsHourMc.js';
 export * as getArchiveEvents from './getArchiveEvents.js';
 export * as getLmicInfo from './getLmicInfo.js';
+export * as hourMc from './hourMc.js';
 export * as setTime2000 from './setTime2000.js';
 export * as status from './status.js';
 export * as time2000 from './time2000.js';

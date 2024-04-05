@@ -5,6 +5,8 @@
  */
 
 export * as correctTime2000 from './correctTime2000.js';
+export * as getCurrent from './getCurrent.js';
+export * as getCurrentMc from './getCurrentMc.js';
 export * as getArchiveEvents from './getArchiveEvents.js';
 export * as getLmicInfo from './getLmicInfo.js';
 export * as getStatus from './getStatus.js';
